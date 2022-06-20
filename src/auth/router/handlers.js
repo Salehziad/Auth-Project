@@ -1,10 +1,10 @@
 'use strict';
 
-const {
-  users
-} = require('../../models-connections');
-
+const {users} = require('../../models-connections');
 const { v4: uuidv4 } = require('uuid');
+const base64 = require('base-64');
+const bcrypt = require('bcrypt');
+
 async function handleSignup(req, res, next) {
   // empty username/pssword 400
   // username already used 409
@@ -31,10 +31,10 @@ async function handleSignup(req, res, next) {
 
     let mailed = await users.sendEmail(user);
     const output = {
-      user: userRecord,
+      username: userRecord.username,
       token: userRecord.token,
     };
-    res.status(201).json(userRecord);
+    res.status(201).json(output);
   } catch (e) {
     // console.error(e);
     next(e);
@@ -62,8 +62,6 @@ async function handleSignin(req, res, next) {
     next(e);
   }
 }
-const base64 = require('base-64');
-const bcrypt = require('bcrypt');
 
 async function handleGetUsers(req, res, next) {
   try {
@@ -122,11 +120,12 @@ async function handleDeleteAnyUser(req, res, next) {
 }
 
 async function verifyCode(req, res, next) {
+  console.log("verify.................");
   try {
     let code = req.body.code;
     // console.log('verify',code);
     let user=await users.findOne({where:{uuCode:code}});
-    // console.log({user});
+    console.log({user});
     let y=user.isVerify;
     console.log({y});
     let usercode=user.uuCode;
@@ -142,6 +141,47 @@ async function verifyCode(req, res, next) {
   } catch (e) {
     console.log(e);
   }
+  
+}
+async function editAccount(req,res,next){
+
+  let tokenId = req.user.id
+  // console.log("tokenId iiiiiii",tokenId);
+  try{ 
+    let ID = parseInt(req.params.id);
+
+    // console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiii",ID);
+     const username = req.body.username;
+     const found = await  users.findOne({where:{id:ID}})
+
+
+     if (found) {
+      
+      if(tokenId === ID){  // To change the username
+         let updates = await found.update({
+        username:username
+      })
+      res.status(201).send({"status":'Update username successfully!',
+      "username updated to":updates.username})
+      next()
+
+
+      }else if( req.body.password){ // to change the password
+      const password = await bcrypt.hash(req.body.password, 10);
+      let updates = await found.update({
+       password:password
+     })
+    res.status(201).send({"status":'Update password successfully!'})
+              
+     next()
+   }
+}else{
+   res.status(500).send('Please enter your id !')
+}
+    }
+    catch(e){
+res.status(500).send("error update")}
+
 }
 // 7b3a21de-121a-44e1-83f4-8e89e530b09e
 // 7b3a21de-121a-44e1-83f4-8e89e530b09e
@@ -151,5 +191,6 @@ module.exports = {
   handleGetUsers,
   handleDeleteAccount,
   handleDeleteAnyUser,
-  verifyCode
+  verifyCode,
+  editAccount
 }
