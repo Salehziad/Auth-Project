@@ -11,7 +11,7 @@ module.exports = async(req, res, next) => {
     // console.log({token});
     const token = req.headers.authorization.split(' ').pop();
     // console.log({token});
-    console.log('passsssssssssssssssssssssssssssssssssssssssssssssssssss');
+    // console.log('passsssssssssssssssssssssssssssssssssssssssssssssssssss');
     let x = await users.authenticateToken(token);
     req.user=x;
     // let x=await users.authenticateToken(token);
