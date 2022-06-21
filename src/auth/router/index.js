@@ -14,7 +14,8 @@ const {
   handleGetUsers,
   handleDeleteAccount,
   handleDeleteAnyUser,
-  verifyCode
+  verifyCode,
+  editAccount
 } = require('./handlers.js');
 
 
@@ -24,7 +25,7 @@ authRouter.post('/signin', basicAuth, handleSignin);
 authRouter.post('/users',  handleGetUsers);
 authRouter.delete('/delete/:id',bearerAuth,acl('read'),handleDeleteAccount);
 authRouter.delete('/deleteAny/:id',bearerAuth,acl('delete'),handleDeleteAnyUser)
-
+authRouter.put("/change/:id",bearerAuth,editAccount)
 
 
 authRouter.get('/img', bearerAuth, acl('read'), (req, res) => {
