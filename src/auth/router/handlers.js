@@ -31,10 +31,14 @@ async function handleSignup(req, res, next) {
 
     let mailed = await users.sendEmail(user);
     const output = {
-      user: userRecord,
-      token: userRecord.token,
+      username: userRecord.username,
+      email:userRecord.email,
+      isVerify:userRecord.isVerify,
+      role:userRecord.role,
+      createdAt:userRecord.createdAt,
+      updatedAt:userRecord.updatedAt
     };
-    res.status(201).json(userRecord);
+    res.status(201).json(output);
   } catch (e) {
     // console.error(e);
     next(e);
